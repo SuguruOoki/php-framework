@@ -1,0 +1,5 @@
+db/mysql
+web/vendor
+web/templates_c/*
+redis/data/*
+web/config/config.json

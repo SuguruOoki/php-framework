@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Hamee社内からのみのアクセスを許可
+# Apacheが読み込んでいるモジュールに応じて、アクセス制限を切り替える
+# 特定のモジュールが存在しない場合に、アクセス制限をかける
+# 読み込むモジュールを変更したら、正しく動作しなくなるので注意
+# 上記の理由から良いやり方では無いが、一時的なアプリなので暫定対応とする
+<IfModule !php7_module>
+    SetEnvIf X-Forwarded-For "211.9.45.185" hameeip
+    order deny,allow
+    deny from all
+    allow from env=hameeip
+</IfModule>
+
+# アクセスURLをindex.phpにリライトする
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule !\.(pdf|ico|gif|jpg|png|css|html|xml)$ index.php
