@@ -24,7 +24,7 @@ class UserValidator
     * @param string $target_str POSTされてきた対象文字列
     * @return bool
     */
-    public function validateStrLenBetween(int $min_str_length, int $max_str_leng, string $target_str) {
+    public function strLenBetween(int $min_str_length, int $max_str_leng, string $target_str) {
         
         if (strlen($target_str) < $min_str_length || strlen($target_str) > $max_str_leng) {
             return false;
@@ -40,7 +40,7 @@ class UserValidator
      * @param  string     $duplicate_check_value 登録されているか確認するPOSTされてきた値
      * @return bool
      */
-    public function validateDuplicate(array $target_columns) {
+    public function canLogin(array $target_columns) {
         
         require_once('ConnectEnvironment.php');
         $pdo = getPDO();
@@ -69,9 +69,9 @@ class UserValidator
     * @param  string     $posted_username POSTされてきたusername
     * @return bool
     */
-    public function validateUserName(string $posted_username) {
+    public function isUserNameStrLenBetween(string $posted_username) {
         
-        if ($this->validateStrLenBetween(self::USER_NAME_LEN_MIN, self::USER_NAME_LEN_MAX, $posted_username) === false) {
+        if ($this->strLenBetween(self::USER_NAME_LEN_MIN, self::USER_NAME_LEN_MAX, $posted_username) === false) {
             $this->errors[] = 'ユーザ名の文字数が不正です。1文字以上32文字以内で設定してください。';
             return false;
         }
@@ -86,7 +86,7 @@ class UserValidator
     * @param  string     $posted_email_address POSTされたメールアドレス
     * @return bool
     */
-    public function validateEmailAddress(string $posted_email_address) {
+    public function isCorrectEmailForRfc822(string $posted_email_address) {
         // TODO: ここのエラーメッセージは後ほどユーザにわかりやすいように直す。
         if (filter_var($posted_email_address, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) === false) {
             $this->errors[] = 'メールアドレスが不正です。RFC822に反しています。';
@@ -104,7 +104,7 @@ class UserValidator
     * @param  string     $posted_re_password 再入力したパスワード
     * @return bool
     */
-    public function validatePassword(string $posted_password, string $posted_re_password) {
+    public function isCorrectPasswordFormat(string $posted_password, string $posted_re_password) {
         
         $match_pattern = '/\A(?=.*?[a-zA-Z])(?=.*?\d)(?=.*?[!-\/:-@[-`{-~])[!-~]{'.self::PASSWORD_LEN_MIN.','.self::PASSWORD_LEN_MAX.'}+\z/';
         
@@ -127,10 +127,10 @@ class UserValidator
     * @param  string     $posted_secret_question      POSTされた秘密の質問を格納
     * @return bool
     */
-    public function validateSecretQuestion(string $posted_secret_question) {
+    public function isSecretQuestionIdBetween(string $posted_secret_question) {
         // 登録された値以外のところが入力されていないかをチェックする
         // TODO: DatabaseのLastInsertIdを取ってきて1~その値までのvalidationに後々変更する (frontのoptionもそのようになるように変更する)
-        if ($this->validateStrLenBetween(self::SECRET_QUESTION_LEN_MIN, self::SECRET_QUESTION_LEN_MAX, $posted_secret_question) === false) {
+        if ($posted_secret_question < self::SECRET_QUESTION_LEN_MIN  || self::SECRET_QUESTION_LEN_MAX < $posted_secret_question) {
             $this->errors[] = '秘密の質問が不正です。HTMLの書換を行わないでください。';
             return false;
         }
@@ -144,9 +144,9 @@ class UserValidator
     * @param  string     $posted_secret_answer validationするPOSTされてきた秘密の質問への答えを格納
     * @return bool
     */
-    public function validateSecretAnswer(string $posted_secret_answer) {
+    public function secretAnswerStrBetween(string $posted_secret_answer) {
         
-        if ($this->validateStrLenBetween(self::SECRET_ANSWER_LEN_MIN, self::SECRET_ANSWER_LEN_MAX, $posted_secret_answer) === false) {
+        if ($this->strLenBetween(self::SECRET_ANSWER_LEN_MIN, self::SECRET_ANSWER_LEN_MAX, $posted_secret_answer) === false) {
             $this->errors[] = '秘密の質問の答えが不正です。1文字以上32文字以下としてください。';
             
             return false;
