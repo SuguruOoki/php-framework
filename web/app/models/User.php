@@ -1,6 +1,6 @@
 <?php
 
-class User 
+class User extends BaseModel
 {
     
     /**
@@ -8,7 +8,7 @@ class User
     *
     * @return void
     */
-    function insert() {
+    public function insert() {
         
         try {
             
