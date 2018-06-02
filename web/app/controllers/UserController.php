@@ -14,11 +14,11 @@ class UserController
         $posted_secret_answer = $_POST['secret-answer'];
         
         $validator = new UserValidator();
-        $validator->validateUserName($posted_username);
-        $validator->validateEmailAddress($posted_email_address);
-        $validator->validatePassword($posted_password, $posted_re_password);
-        $validator->validateSecretQuestion($posted_secret_question);
-        $validator->validateSecretAnswer($posted_secret_answer);
+        $validator->isUserNameStrLenBetween($posted_username);
+        $validator->isCorrectEmailForRfc822($posted_email_address);
+        $validator->isCorrectPasswordFormat($posted_password, $posted_re_password);
+        $validator->isSecretQuestionIdBetween($posted_secret_question);
+        $validator->secretAnswerStrBetween($posted_secret_answer);
         
         $error_message = $validator->getError();
         
