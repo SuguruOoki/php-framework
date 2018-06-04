@@ -1,39 +1,64 @@
 <?php
 
-require_once('../models/User.php');
+require_once(dirname(__FILE__, 2).'/models/User.php');
+require_once(dirname(__FILE__, 2).'/models/UserValidator.php');
+require_once(dirname(__FILE__, 2).'/lib/mytemplate/class/Mytemplate.class.php');
 
 class UserController
 {
+    private $errors;
+    
+    public function __construct() {
+        $this->errors = [];
+
+        $this->mytemplate = new Mytemplate();
+        $this->user = new User();
+    }
+    
+    public function loginAction() {
+        
+        $is_success = $this->user->selectByEmail($_POST['email']);
+        if ($is_success === false) {
+            $this->errors[] = 'ユーザの検索に失敗しました。';
+            $this->mytemplate->displayError($errors);
+            return;
+        }
+    }
+    
     public function signUpAction() {
-        $error_message = [];
-        $posted_username = $_POST['username'];
-        $posted_email_address = $_POST['email'];
-        $posted_password = $_POST['password'];
-        $posted_re_password = $_POST['re-password'];
-        $posted_secret_question = $_POST['secret-question'];
-        $posted_secret_answer = $_POST['secret-answer'];
+        $validate_columns = [
+            'username' => $_POST['username'],
+            'password' => $_POST['password'],
+            'email' => $_POST['email'],
+            're-password' => $_POST['re-password'],
+            'secret-question' => $_POST['secret-question'],
+            'secret-answer' => $_POST['secret-answer']
+        ];
         
         $validator = new UserValidator();
-        $validator->isUserNameStrLenBetween($posted_username);
-        $validator->isCorrectEmailForRfc822($posted_email_address);
-        $validator->isCorrectPasswordFormat($posted_password, $posted_re_password);
-        $validator->isSecretQuestionIdBetween($posted_secret_question);
-        $validator->secretAnswerStrBetween($posted_secret_answer);
+        $is_valid = $validator->canSignup($validate_columns);
         
-        $error_message = $validator->getError();
-        
-        if (count($error_message) > 0 || is_null($error_message) === true) {
+        if ($is_valid === false) {
             // TODO: 登録ページを再表示したいが、まだ諸々作成していないため、var_dumpでエラー文を出すにとどめる。
             // modalを使っている関係上、ajaxで送信を行い、返却したエラー文を表示されるように後々変更する。
-            var_dump($error_message);
-            exit;
+            $this->errors = $validator->getError();
+            $this->mytemplate->displayError($this->errors);
+            return;
         }
         
         // TODO: パスワードの認証時にはpassword_verifyを使う予定
         // 参考: https://qiita.com/rana_kualu/items/3ef57485be1103362f56
         $hashed_password = password_hash($posted_password, PASSWORD_BCRYPT);
+        $is_success = $this->user->insertSingleRecord($validate_columns['username'], $hashed_password, $validate_columns['email']);
         
-        $user = new User();
-        $user->insert();
+        if ($is_success === false) {
+            $this->errors[] = 'ユーザの登録に失敗しました。';
+            $this->mytemplate->displayError($this->errors);
+            return;
+        }
+        
+        $this->mytemplate->setTemplate('top.tpl');
+        $this->mytemplate->assign('username', $validate_columns['username']);
+        $this->mytemplate->display();
     }
 }
