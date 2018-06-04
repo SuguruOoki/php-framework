@@ -5,7 +5,7 @@
                 <h3 class="modal-title" id="exampleModalLabel">ログインフォーム</h3>
             </div>
             <div class="modal-body">
-                <form action="app/models/auth.php" method="POST">
+                <form action="user/login" method="POST">
                     <div class="form-group">
                         <label for="login-email">email</label>
                         <input type="text" class="form-control" id="login-email" name="email" aria-describedby="emailHelp" placeholder="メールアドレスを入力してください">

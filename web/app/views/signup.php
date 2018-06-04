@@ -5,7 +5,7 @@
                 <h3 class="modal-title" id="signUpModalLabel">サインアップフォーム</h3>
             </div>
             <div class="modal-body">
-                <form action="app/controllers/UserController.php" method="POST">
+                <form action="user/signup" method="POST">
                     <div class="form-group">
                         <label for="username">ユーザ名</label>
                         <input type="text" class="form-control" id="username" name="username" aria-describedby="usernameHelp" placeholder="ユーザ名">
