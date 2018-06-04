@@ -17,12 +17,23 @@ class UserController
     
     public function loginAction() {
         
-        $is_success = $this->user->selectByEmail($_POST['email']);
+        $is_success = $this->user->getByEmail($_POST['email']);
         if ($is_success === false) {
             $this->errors[] = 'ユーザの検索に失敗しました。';
             $this->mytemplate->displayError($errors);
             return;
         }
+        
+        $is_valid_password = $this->user->isCorrectPassword($_POST['email'], $is_success['email']);
+        
+        if ($is_valid_password === false) {
+            $this->errors[] = 'パスワードが間違っています。';
+            $this->mytemplate->displayError($errors);
+            return;
+        }
+        
+        $this->mytemplate->setTemplate('top.tpl');
+        $this->mytemplate->display();
     }
     
     public function signUpAction() {
