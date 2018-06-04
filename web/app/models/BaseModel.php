@@ -2,10 +2,15 @@
 
 class BaseModel
 {
-    function getPDO() {
+    protected $pdo;
+    
+    protected function __construct() {
+        $this->pdo = $this->getPDO();
+    }
+    
+    protected function getPDO() {
         $DEVELOPMENT_CONNECTION_INFO = [
-            'dbname'   => '2018_training',
-            'host'     => 'db',
+            'dbname'   => '2018_training_test', 'host'     => 'db',
             'user'     => 'root',
             'password' => 'root',
         ];
@@ -17,15 +22,11 @@ class BaseModel
             'password' => 'd9cdes7se0eu4dil',
         ];
         
-        
         try {
-            // MySQLでホストが127.0.0.1のdevelopment_dbというDBに対してユーザ名root、パスワードrootでアクセスする。エラーが起きたら例外を投げる。
             $app_env = getenv('APP_ENV');
             if($app_env == 'development') {
-                // 開発環境のDB接続情報でDB接続する
                 $info = $DEVELOPMENT_CONNECTION_INFO;
             } else if($app_env == 'production') {
-                // 本番環境のDB接続情報でDB接続する
                 $info = $PRODUCTION_CONNECTION_INFO;
             }
             
@@ -36,12 +37,6 @@ class BaseModel
             $pdo = new PDO($dsn, $user, $password);
             return $pdo;
         } catch(Exception $e) {
-            
-            // DBサーバへ接続に失敗した場合
-            // 1. ホスト名が間違っている、MySQLが起動していない
-            // 2. 指定されたデータベースが存在しない
-            // 3. ユーザ名、パスワードを間違えている など。
-            
             echo '接続失敗: ' . $e->getMessage(); // 例外のメッセージを取得
         }
     }
