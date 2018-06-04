@@ -14,7 +14,12 @@ class UserValidator
     const SECRET_QUESTION_LEN_MAX = 3;
     const SECRET_ANSWER_LEN_MIN = 1;
     const SECRET_ANSWER_LEN_MAX = 32;
-
+    const KEY_EMAIL = 'email';
+    const KEY_PASSWORD = 'password';
+    const KEY_RE_PASSWORD = 're-password';
+    const KEY_USERNAME = 'username';
+    const KEY_SECRET_QUESTION = 'secret-question';
+    const KEY_SECRET_ANSWER = 'secret-answer';
     
     /**
     * 入力された値が規定の文字数の範囲内に収まっているかをvalidation
@@ -37,7 +42,6 @@ class UserValidator
      * すでに登録されているかをチェックする。TODO: 現在はpasswordとemailのみだが、リファクタリング時に他の値にも対応できるよう変更予定。
      *
      * @param  array     $target_columns         登録されているか確認する値の連想配列。キーはDBのカラム名。
-     * @param  string     $duplicate_check_value 登録されているか確認するPOSTされてきた値
      * @return bool
      */
     public function canLogin(array $target_columns) {
@@ -57,6 +61,26 @@ class UserValidator
         $result = $stmt->fetch();
         
         if ($result === false) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * これから登録する値が規定のフォーマットになっているかをチェックする。
+     * TODO: 本当にこの形で良いのか、確認が必要
+     *
+     * @param  array     $target_columns         登録されているか確認する値の連想配列。キーはDBのカラム名。
+     * @return bool validationが全て通ったらtrue, 通らなかったらfalseを返す
+     */
+    public function canSignup(array $target_columns) {
+        if (
+        $this->isUserNameStrLenBetween($target_columns[self::KEY_USERNAME]) || 
+        $this->isCorrectEmailForRfc822($target_columns[self::KEY_EMAIL]) || 
+        $this->isCorrectPasswordFormat($target_columns[self::KEY_PASSWORD], $target_columns[self::KEY_RE_PASSWORD]) ||
+        $this->isSecretQuestionIdBetween($target_columns[self::KEY_SECRET_QUESTION]) ||
+        $this->secretAnswerStrBetween($target_columns[self::KEY_SECRET_ANSWER])) {
             return false;
         }
         
@@ -86,9 +110,9 @@ class UserValidator
     * @param  string     $posted_email_address POSTされたメールアドレス
     * @return bool
     */
-    public function isCorrectEmailForRfc822(string $posted_email_address) {
+    public function isCorrectEmailForRfc822(string $email) {
         // TODO: ここのエラーメッセージは後ほどユーザにわかりやすいように直す。
-        if (filter_var($posted_email_address, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) === false) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) === false) {
             $this->errors[] = 'メールアドレスが不正です。RFC822に反しています。';
             return false;
         }
