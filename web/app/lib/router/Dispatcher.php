@@ -22,7 +22,7 @@ class Dispatcher
         
     }
     
-    public function run($class_name = 'IndexController', $action_method = 'indexAction') {
+    public function run($class_name = 'TopController', $action_method = 'indexAction') {
         require_once $this->system_root . '/controllers/' . $class_name . '.php';
         
         $controller_instance = new $class_name();    

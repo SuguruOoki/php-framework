@@ -2,7 +2,7 @@
 
 require_once(dirname(__FILE__, 2) . '/lib/mytemplate/class/Mytemplate.class.php');
 
-class IndexController
+class TopController
 {
     public function __construct() {
         $this->mytemplate = new MyTemplate();
