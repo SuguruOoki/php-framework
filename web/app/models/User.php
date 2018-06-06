@@ -54,12 +54,13 @@ class User extends BaseModel
             $this->pdo->beginTransaction();
             $sql = "SELECT `name`, `password`, `email` FROM `users` WHERE `email`=:email";
             $prepare_statement = $this->setPrepareState($sql);
-            $prepare_statement->bindValue('email', $email);
             
             if ($prepare_statement === false) {
                 return false;
             }
-
+            
+            $prepare_statement->bindValue('email', $email);
+            
             $is_success = $prepare_statement->execute();
             $this->pdo->commit();
             

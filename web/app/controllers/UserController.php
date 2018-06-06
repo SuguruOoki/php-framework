@@ -18,6 +18,7 @@ class UserController
     public function loginAction() {
         
         $is_success = $this->user->getByEmail($_POST['email']);
+        
         if ($is_success === false) {
             $this->errors[] = 'ユーザの検索に失敗しました。';
             $this->mytemplate->displayError($errors);
