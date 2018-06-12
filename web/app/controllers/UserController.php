@@ -2,7 +2,6 @@
 
 require_once(dirname(__FILE__, 2).'/models/User.php');
 require_once(dirname(__FILE__, 2).'/models/UserValidator.php');
-require_once(dirname(__FILE__, 2).'/lib/mytemplate/class/Mytemplate.class.php');
 
 class UserController
 {
