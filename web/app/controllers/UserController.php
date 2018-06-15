@@ -8,10 +8,9 @@ class UserController
     private $errors;
     
     public function __construct() {
-        $this->errors = [];
-
+        $this->errors     = [];s
         $this->mytemplate = new Mytemplate();
-        $this->user = new User();
+        $this->user       = new User();
     }
     
     public function loginAction() {
@@ -38,12 +37,12 @@ class UserController
     
     public function signUpAction() {
         $validate_columns = [
-            'username' => $_POST['username'],
-            'password' => $_POST['password'],
-            'email' => $_POST['email'],
-            're-password' => $_POST['re-password'],
+            'username'        => $_POST['username'],
+            'password'        => $_POST['password'],
+            'email'           => $_POST['email'],
+            're-password'     => $_POST['re-password'],
             'secret-question' => $_POST['secret-question'],
-            'secret-answer' => $_POST['secret-answer']
+            'secret-answer'   => $_POST['secret-answer']
         ];
         
         $validator = new UserValidator();
@@ -60,7 +59,7 @@ class UserController
         // TODO: パスワードの認証時にはpassword_verifyを使う予定
         // 参考: https://qiita.com/rana_kualu/items/3ef57485be1103362f56
         $hashed_password = password_hash($posted_password, PASSWORD_BCRYPT);
-        $is_success = $this->user->insertSingleRecord($validate_columns['username'], $hashed_password, $validate_columns['email']);
+        $is_success      = $this->user->insertSingleRecord($validate_columns['username'], $hashed_password, $validate_columns['email']);
         
         if ($is_success === false) {
             $this->errors[] = 'ユーザの登録に失敗しました。';
