@@ -1,0 +1,14 @@
+{
+    "DEVELOPMENT_CONNECTION_INFO" : {
+        "dbname"   : "2018_training",
+        "host"     : "db",
+        "user"     : "root",
+        "password" : "root"
+    },
+    "PRODUCTION_CONNECTION_INFO" : {
+        "dbname"   : "d9cdes7se0eu4dil",
+        "host"     : "xq7t6tasopo9xxbs.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+        "user"     : "l5kjq0zznd4yjz2n",
+        "password" : "d9cdes7se0eu4dil"
+    }
+}

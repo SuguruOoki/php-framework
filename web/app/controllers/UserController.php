@@ -1,74 +1,137 @@
 <?php
 
-require_once(dirname(__FILE__, 2).'/models/User.php');
-require_once(dirname(__FILE__, 2).'/models/UserValidator.php');
+require_once(__DIR__ . '/../domains/validators/UserValidator.php');
+require_once(__DIR__ . '/../lib/mytemplate/class/MyTemplate.class.php');
+require_once(__DIR__ . '/../lib/auth/Auth.php');
+require_once(__DIR__ . '/../models/User.php');
+require_once(__DIR__ . '/../lib/session/Session.php');
 
+/**
+ * ユーザに関する制御を行うController
+ */
 class UserController
 {
-    private $errors;
+    const KEY_ID              = 'id';
+    const KEY_USER_NAME       = 'user_name';
+    const KEY_EMAIL           = 'email';
+    const KEY_PASSWORD        = 'password';
+    const KEY_RE_PASSWORD     = 're-password';
+    const KEY_SECRET_QUESTION = 'secret-question';
+    const KEY_SECRET_ANSWER   = 'secret-answer';
+    private $posted_email;
+    private $posted_password;
+    private $auth;
+    private $session;
+    private $users;
+    private $mytemplate;
+    private $validator;
     
-    public function __construct() {
-        $this->errors     = [];s
-        $this->mytemplate = new Mytemplate();
-        $this->user       = new User();
+    public function __construct(PDO $pdo) {
+        $this->posted_email    = $_POST[self::KEY_EMAIL];
+        $this->posted_password = $_POST[self::KEY_PASSWORD];
+        $this->mytemplate      = new MyTemplate();
+        $this->session         = new Session();
+        $this->users           = new User($pdo);
+        $this->validator       = new UserValidator();
     }
     
+    
+    /**
+     * ログイン処理を行う。
+     * ログインに成功したら記事一覧画面に遷移する。
+     *
+     * @see 遷移先 PostController::listAction
+     * @return void
+     */
     public function loginAction() {
         
-        $is_success = $this->user->getByEmail($_POST['email']);
+        $is_empty_email    = $this->validator->isEmpty($this->posted_email);
+        $is_empty_password = $this->validator->isEmpty($this->posted_password);
         
-        if ($is_success === false) {
-            $this->errors[] = 'ユーザの検索に失敗しました。';
-            $this->mytemplate->displayError($errors);
+        if ($is_empty_email === true || $is_empty_password === true) {
+            $this->mytemplate->showError('メールアドレスかパスワードが入力されていません。');
             return;
         }
         
-        $is_valid_password = $this->user->isCorrectPassword($_POST['email'], $is_success['email']);
+        // TODO: 上記でメールが正しく入っていていることを前提としてしかパスワードの判定がうまく動かない
+        $user_password = $this->users->getPasswordByEmail($this->posted_email);
         
-        if ($is_valid_password === false) {
-            $this->errors[] = 'パスワードが間違っています。';
-            $this->mytemplate->displayError($errors);
+        if ($user_password === false || $user_password === []) {
+            $this->mytemplate->showError('メールアドレスかパスワードが間違っています。');
             return;
         }
         
-        $this->mytemplate->setTemplate('top.tpl');
-        $this->mytemplate->display();
+        $is_correct_password = Auth::isCorrectPassword($this->posted_password, $user_password['password']);
+        
+        if ($is_correct_password === false) {
+            $this->mytemplate->showError('メールアドレスかパスワードが間違っています。');
+            return;
+        }
+        
+        $user_id   = $this->users->getIdByEmail($this->posted_email)[self::KEY_ID];
+        $user_name = $this->users->getNameByEmail($this->posted_email)[self::KEY_USER_NAME];
+        
+        Auth::setLoginStatus($user_id, $user_name);
+        
+        header('Location: /post/list');
+        return;
+    }
+
+    /**
+     * ユーザの新規登録を行う。
+     * 登録に成功したら記事一覧画面に遷移する。
+     *
+     * @see 遷移先 PostController::listAction
+     * @return void
+     */
+    public function signUpAction() {
+        
+        $this->posted_username        = $_POST[self::KEY_USER_NAME];
+        $this->posted_re_password     = $_POST[self::KEY_RE_PASSWORD];
+        $this->posted_secret_question = $_POST[self::KEY_SECRET_QUESTION];
+        $this->posted_secret_answer   = $_POST[self::KEY_SECRET_ANSWER];
+        
+        $this->validator->userNameStrBetween($this->posted_username);
+        $this->validator->isEmail($this->posted_email);
+        $this->validator->isCorrectPasswordFormat($this->posted_password, $this->posted_re_password);
+        $this->validator->secretQuestionIdBetween($this->posted_secret_question);
+        $this->validator->secretAnswerStrLenBetween($this->posted_secret_answer);
+        
+        $errors = $this->validator->getError();
+        
+        if (count($errors) > 0) {
+            // TODO: 登録ページを再表示したいが、まだ諸々作成していないため、エラー文を出すにとどめる。
+            // modalを使っている関係上、ajaxで送信を行い、返却したエラー文を表示されるように後々変更する。
+            $this->mytemplate->showError($errors);
+            return;
+        }
+        
+        $hashed_password = password_hash($this->posted_password, PASSWORD_BCRYPT);
+        $transition      = $this->users->insertSingleRecord($this->posted_username, $hashed_password, $this->posted_email);
+        
+        if ($transition === false) {
+            $this->mytemplate->showError('登録に失敗しました。運営に問い合わせてください。');
+            return;
+        }
+        
+        $user_id   = $this->users->getIdByEmail($this->posted_email)[self::KEY_ID];
+        $user_name = $this->users->getNameByEmail($this->posted_email)[self::KEY_USER_NAME];
+        
+        Auth::setLoginStatus($user_id, $user_name);
+        
+        header('Location: /post/list');
+        return;
     }
     
-    public function signUpAction() {
-        $validate_columns = [
-            'username'        => $_POST['username'],
-            'password'        => $_POST['password'],
-            'email'           => $_POST['email'],
-            're-password'     => $_POST['re-password'],
-            'secret-question' => $_POST['secret-question'],
-            'secret-answer'   => $_POST['secret-answer']
-        ];
+    /**
+     * ログアウトを行う処理
+     *
+     * @return void
+     */
+    public function logoutAction() {
+        Auth::clearLoginStatus();
         
-        $validator = new UserValidator();
-        $is_valid = $validator->canSignup($validate_columns);
-        
-        if ($is_valid === false) {
-            // TODO: 登録ページを再表示したいが、まだ諸々作成していないため、var_dumpでエラー文を出すにとどめる。
-            // modalを使っている関係上、ajaxで送信を行い、返却したエラー文を表示されるように後々変更する。
-            $this->errors = $validator->getError();
-            $this->mytemplate->displayError($this->errors);
-            return;
-        }
-        
-        // TODO: パスワードの認証時にはpassword_verifyを使う予定
-        // 参考: https://qiita.com/rana_kualu/items/3ef57485be1103362f56
-        $hashed_password = password_hash($posted_password, PASSWORD_BCRYPT);
-        $is_success      = $this->user->insertSingleRecord($validate_columns['username'], $hashed_password, $validate_columns['email']);
-        
-        if ($is_success === false) {
-            $this->errors[] = 'ユーザの登録に失敗しました。';
-            $this->mytemplate->displayError($this->errors);
-            return;
-        }
-        
-        $this->mytemplate->setTemplate('top.tpl');
-        $this->mytemplate->assign('username', $validate_columns['username']);
-        $this->mytemplate->display();
-    }
+        header('Location: /');
+        return;
+   }
 }

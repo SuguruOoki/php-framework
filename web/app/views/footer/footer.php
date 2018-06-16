@@ -36,7 +36,7 @@
 					</div>
 					<div class="col-md-4 ftr-grid">
 						<div class="logo-fo">
-							<h2><a href="index.php">[社内ツール]</a></h2>
+							<h2><a href="/">[社内ツール]</a></h2>
 						</div>
 					</div>
 					<div class="col-md-4 w3l_header_left-2">

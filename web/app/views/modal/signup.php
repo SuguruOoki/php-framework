@@ -7,8 +7,8 @@
             <div class="modal-body">
                 <form action="user/signup" method="POST">
                     <div class="form-group">
-                        <label for="username">ユーザ名</label>
-                        <input type="text" class="form-control" id="username" name="username" aria-describedby="usernameHelp" placeholder="ユーザ名">
+                        <label for="user_name">ユーザ名</label>
+                        <input type="text" class="form-control" id="user_name" name="user_name" aria-describedby="usernameHelp" placeholder="ユーザ名">
                         <small id="usernameHelp" class="form-text text-muted">ログイン後に表示されるユーザ名になります。</small>
                     </div>
                     <div class="form-group">

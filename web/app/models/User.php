@@ -1,71 +1,43 @@
 <?php
 
-require_once __DIR__ . '/BaseModel.php';
 
 class User extends BaseModel
 {
-    public function __construct() {
-        parent::__construct();
+    private $pdo;
+    
+    public function __construct(PDO $pdo) {
+        $this->pdo = $pdo;
     }
     
+    public $name     = null;
+    public $password = null;
+    public $email    = null;
+    
     /**
-    * usersテーブルへのinsertを行うメソッド。
-    *
-    * @param string $username ユーザ名
-    * @param string $hashed_password ハッシュ済みのパスワード
-    * @param string $email メールアドレス
-    * @return void
-    */
-    public function insertSingleRecord(string $username, string $hashed_password, string $email) {
+     * usersテーブルへinsertを行う。単一レコードのみ。
+     *
+     * @param  string $username        POSTされたusername
+     * @param  string $hashed_password password_hashが済んでいるpassword
+     * @param  string $email           POSTされたemail
+     * @return bool
+     */
+    public function insertSingleRecord(string $username, string $hashed_password, string $email) : Bool {
+        
         try {
-            
             $this->pdo->beginTransaction();
             
-            $sql = "INSERT INTO `users` (`name`, `password`, `email`, `access_token`) VALUES ('$posted_username', '$hashed_password', '$email', 'access_token')";
+            $sql = "INSERT INTO `users` (`name`, `password`, `email`, `access_token`) VALUES ('$username', '$hashed_password', '$email', 'access_token')";
             
-            $register_user = $this->pdo->prepare($sql);
+            $is_already_exist = $this->pdo->prepare($sql);
             
-            if ($register_user === false) {
-                // echo "\nPDO::errorInfo():\n";
-                // throw new PdoException($this->pdo->errorInfo());
-                // exit();
+            if ($is_already_exist === false) {
                 return false;
             }
             
-            $is_success = $register_user->execute();
+            $is_success = $is_already_exist->execute();
             $this->pdo->commit();
             
-            // TODO: ログインページへ遷移させる処理を書く。ひとまずtopページに戻すように書く。
             return $is_success;
-            
-        } catch(PDOException $e) {
-            $pdo->rollback();
-            echo 'DBにおけるエラー: ' . $e;
-        }
-    }
-    
-    /**
-    * 
-    * @param string $email メールアドレス
-    * @return bool|array SELECTに失敗したらfalse, 成功した場合はSELECTした結果の連想配列を返す
-    */
-    public function getByEmail(string $email) {
-        try {
-            $this->pdo->beginTransaction();
-            $sql = "SELECT `name`, `password`, `email` FROM `users` WHERE `email`=:email";
-            $prepare_statement = $this->setPrepareState($sql);
-            
-            if ($prepare_statement === false) {
-                return false;
-            }
-            
-            $prepare_statement->bindValue('email', $email);
-            
-            $is_success = $prepare_statement->execute();
-            $this->pdo->commit();
-            
-            // TODO: ログインページへ遷移させる処理を書く。ひとまずtopページに戻すように書く。
-            return $prepare_statement->fetch(PDO::FETCH_ASSOC);
             
         } catch(PDOException $e) {
             $this->pdo->rollback();
@@ -74,37 +46,83 @@ class User extends BaseModel
     }
     
     /**
-     * Passwordが正しいかをチェック
-     *
-     * @param  string $input_password 入力されたパスワード
-     * @param  string $password       DBに登録されているパスワード
-     * @return bool
+     * Emailでユーザのパスワードを取得する
+     * 
+     * @param  string $email パスワードを取得するためのメールアドレス
+     * @return array|bool SELECTに成功したら結果の連想配列、失敗したらfalse
      */
-    public function isCorrectPassword($input_password, $register_password) {
-        if (strcmp($input_password, $register_password) !== 0) {
-            return false;
-        }
+    public function getPasswordByEmail($email) {
         
-        return true;
+        $sql  = "SELECT `password` FROM `users` WHERE `email` = :email LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        
+        $stmt->bindparam(':email', $email);
+        
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $result;
     }
     
     /**
-     * プリペアドステートメントを用意するだけのメソッド
+     * すでに存在しているユーザかをチェックする
      *
-     * @param  string $sql プリペアドステートメントとするSQL
-     * @return bool prepareに成功したらPDO::Statementオブジェクト, 失敗したらfalseを返す
+     * @param  string $email ユニークなキーであるemailでチェック
+     * @return bool SELECTを行い、すでに同じemailが１件以上あればtrue, なければfalse
      */
-    public function setPrepareState(string $sql) {
+    public function isExistByEmail($email) {
         
-        $is_prepare = $this->pdo->prepare($sql);
+        $sql  = "SELECT COUNT(`email`) AS `count` FROM `users` WHERE `email` = :email";
+        $stmt = $this->pdo->prepare($sql);
         
-        if ($is_prepare === false) {
-            // TODO: Loggerクラスを作ったら、そちらに出力するように変更する
-            // echo "\nPDO::errorInfo():\n";
-            throw new PdoException($this->pdo->errorInfo());
-            // return false;
+        $stmt->bindparam(':email', $email);
+        $stmt->execute();
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['count'] > 0) {
+            return true;
         }
         
-        return $is_prepare;
+        return false;
+    }
+    
+    
+    /**
+     * emailからIdを取得する
+     *
+     * @param  string $email ユニークなキーであるemailでチェック
+     * @return array|bool SELECTに成功した場合は結果の配列, なければfalse
+     */
+    public function getIdByEmail($email) {
+        
+        $sql  = "SELECT `id` FROM `users` WHERE `email` = :email";
+        $stmt = $this->pdo->prepare($sql);
+        
+        $stmt->bindparam(':email', $email);
+        $stmt->execute();
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $result;
+    }
+    
+    /**
+     * emailからnameを取得する
+     *
+     * @param  string $email ユニークなキーであるemailでチェック
+     * @return array|bool SELECTに成功した場合は結果の配列, なければfalse
+     */
+    public function getNameByEmail($email) {
+        
+        $sql  = "SELECT `name` AS `user_name` FROM `users` WHERE `email` = :email";
+        $stmt = $this->pdo->prepare($sql);
+        
+        $stmt->bindparam(':email', $email);
+        $stmt->execute();
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $result;
     }
 }
