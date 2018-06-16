@@ -1,6 +1,6 @@
 <?php 
 
-require_once(__DIR__ . '/../db/DbConnector.php')
+require_once(__DIR__ . '/../db/DbConnector.php');
 
 class BaseModel
 {
