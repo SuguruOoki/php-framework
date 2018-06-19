@@ -67,7 +67,8 @@ class UserController
             $this->mytemplate->showError('メールアドレスかパスワードが間違っています。');
             return;
         }
-        
+        var_dump($this->users->findByEmail('oki.suguru@hamee.co.jp'));
+        exit();
         $user_id   = $this->users->getIdByEmail($this->posted_email)[self::KEY_ID];
         $user_name = $this->users->getNameByEmail($this->posted_email)[self::KEY_USER_NAME];
         
