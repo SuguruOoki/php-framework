@@ -11,7 +11,6 @@ require_once(__DIR__ . '/../lib/session/Session.php');
  */
 class UserController
 {
-    const KEY_ID              = 'id';
     const KEY_USER_NAME       = 'user_name';
     const KEY_EMAIL           = 'email';
     const KEY_PASSWORD        = 'password';
@@ -67,9 +66,10 @@ class UserController
             $this->mytemplate->showError('メールアドレスかパスワードが間違っています。');
             return;
         }
+        $user = $this->users->findByEmail($this->posted_email);
         
-        $user_id   = $this->users->getIdByEmail($this->posted_email)[self::KEY_ID];
-        $user_name = $this->users->getNameByEmail($this->posted_email)[self::KEY_USER_NAME];
+        $user_id   = $user->id;
+        $user_name = $user->name;
         
         Auth::setLoginStatus($user_id, $user_name);
         
@@ -114,8 +114,9 @@ class UserController
             return;
         }
         
-        $user_id   = $this->users->getIdByEmail($this->posted_email)[self::KEY_ID];
-        $user_name = $this->users->getNameByEmail($this->posted_email)[self::KEY_USER_NAME];
+        $user = $this->users->findByEmail($this->posted_email);
+        $user_id   = $user->id;
+        $user_name = $user->name;
         
         Auth::setLoginStatus($user_id, $user_name);
         

@@ -1,5 +1,6 @@
 <?php
 
+require_once(__DIR__ . '/BaseModel.php');
 
 class User extends BaseModel
 {
@@ -8,10 +9,6 @@ class User extends BaseModel
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
-    
-    public $name     = null;
-    public $password = null;
-    public $email    = null;
     
     /**
      * usersテーブルへinsertを行う。単一レコードのみ。
