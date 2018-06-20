@@ -10,10 +10,6 @@ class User extends BaseModel
         $this->pdo = $pdo;
     }
     
-    public $name     = null;
-    public $password = null;
-    public $email    = null;
-    
     /**
      * usersテーブルへinsertを行う。単一レコードのみ。
      *

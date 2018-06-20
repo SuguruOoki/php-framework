@@ -15,7 +15,7 @@ class BaseModel
             $column = lcfirst(substr($method_name, 6)); // findBy以降のcolumnを切取して最初を小文字に。
         }
         
-        $this->findBy($column, $method_argument[0]);
+        return $this->findBy($column, $method_argument[0]);
     }
     
     /**
@@ -31,22 +31,19 @@ class BaseModel
         $trace = debug_backtrace();
         $table = lcfirst(get_class($trace[1]['object'])).'s'; // この辺りは突貫実装なので汚いですすいません。
         
-        $sql = "SELECT * FROM `:table` WHERE `:column`= :value";
+        $sql = "SELECT * FROM `{$table}` WHERE `{$where_column}`='{$where_value}'";
         
         $pdo = DbConnector::getPdo();
         
         $stmt = $pdo->prepare($sql);
-        var_dump($stmt);
+        
         if ($stmt === false) {
             // FIXME:? Exceptionの方が良い？
             return false;
         }
-        var_dump($table, $where_column, $where_value);
-        $stmt->bindParam(':table', $table);
-        $stmt->bindParam(':column', $where_column);
-        $stmt->bindParam(':value', $where_value);
+        
         $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_LAZY);
         
         return $result;
     }
