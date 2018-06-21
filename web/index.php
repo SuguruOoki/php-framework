@@ -10,5 +10,10 @@ $dispatcher->setSystemRoot(__DIR__ . '/app');
 $dispatcher->setPramLevel(0);
 // TODO: ここのkeyとvalueは今度書き換えします。
 $session->start('sample', 'samples');
-$dispatcher->dispatch();
+try {
+    $dispatcher->dispatch();
+} catch(Exception $e) {
+    echo 'エラー：' . $e;
+}
+
 
