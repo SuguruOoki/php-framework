@@ -39,7 +39,7 @@ class PostService
         $sql = "SELECT `posts`.`id`, `users`.`name` AS `user_name`, `posts`.`title`, `posts`.`created_at`
                 FROM `posts`
                 INNER JOIN `users` ON `posts`.`user_id` = `users`.`id`
-                ORDER BY `posts`.`created_at`
+                ORDER BY `posts`.`created_at` DESC
                 LIMIT 50";
         
         $stmt = $this->pdo->prepare($sql);
