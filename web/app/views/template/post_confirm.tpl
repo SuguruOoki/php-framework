@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <title>投稿確認画面</title>
-    </head>
+<?php require_once(__DIR__ . '/../header/header.php') ?>
     <body>
+        <?php require_once(__DIR__ . '/../header/after_login_body_header.tpl') ?>
         <form action="/post/register" method="post">
             <div>確認内容をここに表示します。</div>
             <div class="title">
