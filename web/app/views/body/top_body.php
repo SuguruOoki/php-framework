@@ -97,9 +97,9 @@
 	</div>
 </div>
 
-<script src="app/assets/js/jquery-2.1.4.min.js"></script>
-<script src="app/assets/js/bootstrap.js"></script> <!-- Necessary-JavaScript-File-For-Bootstrap --> 
-<script src="app/assets/js/responsiveslides.min.js"></script>
+<script src="/app/assets/js/jquery-2.1.4.min.js"></script>
+<script src="/app/assets/js/bootstrap.js"></script> <!-- Necessary-JavaScript-File-For-Bootstrap --> 
+<script src="/app/assets/js/responsiveslides.min.js"></script>
 <script>
 	$(function () {
 		$("#slider").responsiveSlides({
