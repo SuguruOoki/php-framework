@@ -7,7 +7,7 @@
                     <div class="Comment_Item card-title">
                         <div class="card-footer text-muted">
                             <div>
-                                <span><?=$comment['content']?></span>
+                                <span><?=nl2br($comment['content'])?></span>
                             </div>
                             <div>
                                 <span><?=$comment['user_name']?></span>
@@ -24,8 +24,11 @@
 </div>
 <div class="comment_form">
     <form class="" action="/comment/create" method="post">
-        <input type="text" name="content" value="">
+        <div class="form-group">
+            <label for="comment"></label>
+            <textarea type="text" id="comment"  class="form-control" rows="3" name="content" value=""></textarea>
+        </div>
         <input type="hidden" name="dual_trans_token" value="<?=$dual_trans_token?>">
-        <button type="submit">コメントを投稿</button>
+        <button type="submit" class="btn btn-primary pull-right">コメントを投稿</button>
     </form>
 </div>
