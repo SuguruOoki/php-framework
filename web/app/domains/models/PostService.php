@@ -36,7 +36,7 @@ class PostService
      */
     public function getForPostList() {
         // ページネーションの関係で仮の値としてLIMIT 50を入れている。
-        $sql = "SELECT `posts`.`id`, `users`.`name` AS `user_name`, `posts`.`title`, `posts`.`created_at`
+        $sql = "SELECT `posts`.`id`, `users`.`name` AS `user_name`, `users`.`id` AS `user_id` ,`posts`.`title`, `posts`.`created_at`
                 FROM `posts`
                 INNER JOIN `users` ON `posts`.`user_id` = `users`.`id`
                 ORDER BY `posts`.`created_at` DESC
