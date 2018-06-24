@@ -10,7 +10,7 @@
                 <input type="hidden" name="title" value="<?=$title?>">
             </div>
             <div class="content">
-                <?=$content?>
+                <?=nl2br($content)?>
                 <input type="hidden" name="content" value="<?=$content?>">
             </div>
             <input type="hidden" name="dual_trans_token" value="<?=$dual_trans_token?>">
