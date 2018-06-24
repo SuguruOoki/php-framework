@@ -15,7 +15,7 @@
                     <label for="post_content">記事内容</label>
                     <textarea id="post_content" class="form-control" rows="3" name="content" value="" required></textarea>
                 </div>
-                <button type="submit" value="send" class="btn btn-primary pull-right">確認画面へ</button>
+                <button type="submit" value="send" class="btn-lg btn-primary pull-right">確認画面へ</button>
             </form>
         </div>
     </div>
