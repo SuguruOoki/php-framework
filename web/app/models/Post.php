@@ -11,21 +11,21 @@ class Post extends BaseModel
     }
     
     /**
-     * POSTテーブルへinsertを行う。
-     *
-     * @param  int $user_id    記事を投稿するユーザのID
-     * @param  string $title   記事のタイトル
-     * @param  string $content 記事の内容
-     * @return bool
-     */
-    public function insertSingleRecord(int $user_id, string $title, string $content) : Bool {
+    * POSTテーブルへinsertを行う。
+    *
+    * @param  int $user_id    記事を投稿するユーザのID
+    * @param  string $title   記事のタイトル
+    * @param  string $content 記事の内容
+    * @return string|bool insertに成功したら、最後にinsertした行のidを取得。失敗したらfalse
+    */
+    public function insertGetId(int $user_id, string $title, string $content) {
+        
+        $this->pdo->beginTransaction();
+        
+        $sql = "INSERT INTO `posts` (`user_id`, `title`, `content`)
+        VALUES (:user_id, :title, :content)";
         
         try {
-            
-            $this->pdo->beginTransaction();
-            
-            $sql = "INSERT INTO `posts` (`user_id`, `title`, `content`)
-                    VALUES (:user_id, :title, :content)";
             
             $is_exist = $this->pdo->prepare($sql);
             
@@ -37,10 +37,11 @@ class Post extends BaseModel
             $is_exist->bindParam('title', $title);
             $is_exist->bindParam('content', $content);
             
-            $is_success = $is_exist->execute();
+            $is_success     = $is_exist->execute();
+            $last_insert_id = $this->pdo->lastInsertId('id');
             $this->pdo->commit();
             
-            return $is_success;
+            return $last_insert_id;
             
         } catch(PDOException $e) {
             $this->pdo->rollback();
