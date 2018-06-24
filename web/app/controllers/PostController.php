@@ -126,10 +126,15 @@ class PostController
         $title   = $_POST[self::KEY_TITLE];
         $content = $_POST[self::KEY_CONTENT];
         
-        $this->post->insertSingleRecord($user_id, $title, $content);
-        $this->mytemplate->setTemplate('finish.tpl');
-        $this->mytemplate->assign('screen_title', $template_message);
-        $this->mytemplate->show();
+        $last_insert_id = $this->post->insertGetId($user_id, $title, $content);
+        
+        if (is_string($last_insert_id) === false) {
+            $this->listAction();
+            return;
+        }
+        
+        header("Location: /post/detail/{$last_insert_id}");
+        return;
     }
     
     /**

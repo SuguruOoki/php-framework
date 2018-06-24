@@ -9,27 +9,27 @@
             <h1>ようこそ <?=$user_name?>さん！</h1>
         </div>
         <div class="row">
-            <div class="Post_List center-block">
-                <?php foreach($posts as $post) {?> 
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="Post_Item card-title text-center">
+            <table class="table table-striped">
+                <tbody>
+                    <?php foreach($posts as $post) {?> 
+                        <tr class="table-row">
+                            <td class="table-column">
                                 <a href="/post/detail/<?=$post['id']?>">
                                     <?=$post['title']?>
                                 </a>
-                                <div class="card-footer text-muted">
-                                    <div>
-                                        <span><?=$post['user_name']?></span>
-                                    </div>
-                                    <div>
-                                        <span><?=$post['created_at']?></span>
-                                    </div>
+                            </td>
+                            <td class="table-column">
+                                <div>
+                                    <a href="/post/detail/<?=$post['user_id']?>"><?=$post['user_name']?></a>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
-            </div>
+                            </td>
+                            <td class="table-column">
+                                <span><?=$post['created_at']?></span>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>

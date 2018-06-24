@@ -10,7 +10,7 @@
         </div>
         <div class="row">
             <div class="content">
-                <h4><?=$post['content']?></h4>
+                <h4><?=nl2br($post['content'])?></h4>
             </div>
         </div>
         <div class="row">

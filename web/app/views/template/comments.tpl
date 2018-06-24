@@ -1,31 +1,32 @@
 <div class="row">
-    <h2>コメント</h2>
+    <h3>コメント</h3>
     <div class="comments">
         <?php foreach($comments as $comment) {?> 
-            <div class="card">
-                <div class="card-body">
-                    <div class="Comment_Item card-title">
-                        <div class="card-footer text-muted">
-                            <div>
-                                <span><?=$comment['content']?></span>
-                            </div>
-                            <div>
-                                <span><?=$comment['user_name']?></span>
-                            </div>
-                            <div>
-                                <span><?=$comment['created_at']?></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <td>
+                            <span><?=nl2br($comment['content'])?></span>
+                        </td>
+                        <td>
+                            <span><?=$comment['user_name']?></span>
+                        </td>
+                        <td>
+                            <span><?=$comment['created_at']?></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         <?php } ?>
     </div>
 </div>
 <div class="comment_form">
     <form class="" action="/comment/create" method="post">
-        <input type="text" name="content" value="">
+        <div class="form-group">
+            <label for="comment"></label>
+            <textarea type="text" id="comment" class="form-control" rows="3" name="content" value=""></textarea>
+        </div>
         <input type="hidden" name="dual_trans_token" value="<?=$dual_trans_token?>">
-        <button type="submit">コメントを投稿</button>
+        <button type="submit" class="btn btn-primary pull-right">コメントを投稿</button>
     </form>
 </div>
