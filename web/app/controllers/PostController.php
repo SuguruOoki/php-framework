@@ -196,4 +196,11 @@ class PostController
         
         return;
     }
+    
+    
+    public function searchAction($search_word) {
+        $post = $this->post->search($search_word);
+        
+        echo json_encode($post);
+    }
 }

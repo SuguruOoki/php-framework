@@ -48,4 +48,16 @@ class Post extends BaseModel
             echo 'DBにおけるエラー: ' . $e;
         }
     }
+    
+    public function search($search_word) {
+        
+        $sql = "SELECT `title` FROM `posts` WHERE `title` LIKE :keyword";
+        $keyword = "%".$search_word."%";
+        $stmt = $this->pdo->prepare($sql);
+        
+        $stmt->bindParam(':keyword', $keyword);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
