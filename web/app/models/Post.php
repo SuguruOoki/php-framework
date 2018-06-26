@@ -58,6 +58,6 @@ class Post extends BaseModel
         $stmt->bindParam(':keyword', $keyword);
         $stmt->execute();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 }

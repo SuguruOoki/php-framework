@@ -5,7 +5,7 @@
             <div class="container">
                 <nav class="navbar navbar-default">
                     <div class="navbar-header navbar-left">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <button type="button" class="navbar-toggle collapsed" search_result-toggle="collapse" search_result-target="#bs-example-navbar-collapse-1">
                             <span class="sr-only">Toggle navigation</span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
@@ -21,7 +21,6 @@
                             <ul class="nav navbar-nav menu__list">
                                 <li class="menu__item menu__item--current">
                                     <input type="text" name="keyword" placeholder="記事のタイトル" id="search">
-                                    
                                 </li>
                                 <li class="menu__item menu__item--current"><a href="/post/list" class="menu__link">Home</a></li>
                                 <li class="menu__item"><a href="/post/create" class="menu__link">新規投稿</a></li>
@@ -42,39 +41,34 @@
 $(function () {
     var keyupStack = [];
     $('#search').on('keyup', function () {
-
+        
         keyupStack.push(1); //配列の後ろに追加
-
+        
         // 指定時間後に処理を実行させる
         setTimeout(function () {
-
+            
             keyupStack.pop(); //配列の中身排出
-
+            
             // 最後にkeyupされてから次の入力がなかった場合
             if (keyupStack.length === 0) {
-
+                
                 $.ajax({
                     type: "GET",
                     url: "/post/search/"+$('#search').val(),
-                }).done(function(data) {
-                    // 取得したデータを処理する（ここではjsonを受け取る想定）
-                    // alert(data);
-                    var test_len = data.length;
-                    alert(test_len);
-                    // alert(data["title"]);
-                    for(var i = 0; i < test_len; i++){
-                        // alert(data[i]["title"]);
-                        $("#test").append("<li>" + data[i]["title"] + "</li>");
+                    dataType: 'json',
+                }).done(function(search_result) {
+                    var search_result_len = search_result.length;
+                    for(var i = 0; i < search_result_len; i++){
+                        $("#test").append("<li>" + search_result[i] + "</li>");
                     }
-
-                }).fail(function(data) {
+                }).fail(function(search_result) {
                     alert('failed!');
                 });
-
+                
             }
         }.bind(this), 500); // 0.5秒設定
-
+        
     });
-
+    
 });
 </script>
