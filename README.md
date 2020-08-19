@@ -5,7 +5,7 @@
 # 環境構築
 
 ```
-$ git clone git@bitbucket.org:hameesys/2018-training.git
+$ git clone https://github.com/SuguruOoki/php-framework.git
 $ cd 2018-training
 # コンテナの起動
 $ docker-compose up -d
